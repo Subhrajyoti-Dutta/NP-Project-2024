@@ -23,14 +23,12 @@ cut_off = function(n, alpha, alt) {
     # assuming null distribution of rho is symmetric about it's mean 0 (check)
     # make this remark when presenting the histograms showing variation with n
  
-  k = 100000
+  k = 10000
   
-  if(n <=10) {
-    
-    data = replicate(k, rnorm2d(n))
-    rho = apply(data, 3, scorr)
+  if(n <=100) {
+    rho = replicate(k, scorr(rbinorm(n)))
+    # rho = apply(data, 3, scorr)
     cp = quantile(rho, prob)
-    
   }
   
   else 
@@ -46,15 +44,15 @@ power = function(n, alpha, alt, func, delta) {
   cp = cut_off(n, alpha, alt)
   
   k = 10000
-  data = replicate(k, func(n, delta))
-  rho = apply(data, 3, scorr)
+  rho = replicate(k, scorr(func(n, delta)))
+  # rho = apply(data, 3, scorr)
   
   if(alt == "upper") {
     power = sum(rho >= cp)/k
   }
   
   else if(alt == "lower") {
-    power = sum(rho >= cp)/k
+    power = sum(rho <= cp)/k
   }
   
   else {
@@ -72,4 +70,7 @@ power = function(n, alpha, alt, func, delta) {
 # rbinorm() - normal; -1 to 1 rho
 # rbiclaytoncop() - uniform; 
 # x_bar & S
+nvals = c(2:10,seq(12,20,2),seq(30,100,10))
 
+
+sapply(nvals,function(n) power(n, 0.05, "upper", rbifgmcop, 0.5))
