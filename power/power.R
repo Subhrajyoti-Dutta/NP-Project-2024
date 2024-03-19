@@ -66,10 +66,10 @@ power = function(n, alpha, alt, func, delta) {
 
 
 # Set-Ups
-# rbifgmcop()
-# rbiamhcop()
-# rbilogis()
-# rbinorm()
-# rbiclaytoncop()
+# rbifgmcop() - uniform; -1/3 to 1/3 srho
+# rbiamhcop() - uniform; -0.271 to 0.478 rho
+# rbilogis() 
+# rbinorm() - normal; -1 to 1 rho
+# rbiclaytoncop() - uniform; 
 # x_bar & S
-rbi
+
