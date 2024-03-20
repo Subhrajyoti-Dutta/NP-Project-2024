@@ -26,17 +26,10 @@ cut_off = function(n, prob, alt) {
  
   k = 10000
   
-<<<<<<< HEAD
-  if(n <= 10) {
-    
-    data = replicate(k, rnorm2d(n))
-    rho = apply(data, 3, scorr)
-=======
   if(n <=10) {
     rho = replicate(k, scorr(rbinorm(n)))
     # rho = apply(data, 3, scorr)
     # print(mean(rho))
->>>>>>> 787cb24376930162681717fbefb6cd3758b130de
     cp = quantile(rho, prob)
     # hist(rho)
     # print((ecdf(rho)(0.8)))
@@ -68,12 +61,8 @@ power = function(n, alpha, alt, func, delta) {
   }
   
   else if(alt == "lower") {
-<<<<<<< HEAD
-    power = sum(rho <= cp)/k
-=======
     cp = cut_off(n, alpha, alt)
     power = mean(rho < cp)
->>>>>>> 787cb24376930162681717fbefb6cd3758b130de
   }
   
   else {
