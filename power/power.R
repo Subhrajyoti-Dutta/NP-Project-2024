@@ -1,5 +1,6 @@
 # install.packages("VGAM")
 library("VGAM")
+library("fMultivar")
 
 # computing spearman's correlation coefficient over an array of random number pairs
 scorr = function(arr) {
@@ -75,6 +76,7 @@ power = function(n, alpha, alt, func, delta) {
 
 
 # Set-Ups
+# 
 # rbifgmcop() - uniform; -1/3 to 1/3 srho
 # rbiamhcop() - uniform; -0.271 to 0.478 rho
 # rbilogis() 
