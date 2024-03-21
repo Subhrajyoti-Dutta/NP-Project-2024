@@ -33,7 +33,7 @@ compute.u.statistic <- function(arr){
   indices <- t(combn(1:n,3))
   val <- 0               
   for (i in 1:nrow(indices)){
-    val <- val + compute.kernel(arr[indices[i,],])
+    val <- val + compute.kernel.sy(arr[indices[i,],])
   }
   6*val/(n*(n-1)*(n-2))
 
