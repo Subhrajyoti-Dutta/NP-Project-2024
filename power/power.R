@@ -30,7 +30,6 @@ cut_off = function(n, prob, alt) {
 }
 
 power = function(n, alpha, alt, func, delta) {
-
   k = 10000
   rho = replicate(k, scorr(func(n, delta)))
   if(alt == "upper") {
@@ -64,12 +63,17 @@ plot(nvals,powers,log="x")
 # Power as a function of association parameter (Fix n)
 n = 7
 
-delta_upper = c(seq(0.01,0.5,0.01))
+delta_upper = c(seq(0.01,0.2,0.01), seq(0.2, 0.5, 0.02))
 delta_lower = c(seq(-0.5,-0.01,0.01))
 delta_two.tailed = c(delta_lower, delta_upper)
 
 powers = sapply(delta_upper, function(delta) power(n, alpha, "upper", rnorm2d, delta))
-plot(delta_upper, powers, type = 'l', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Normal", sub = "n = 7")
+# Plot the data
+plot(delta_upper, powers, type = 'l', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Normal")
+
+# Add subtitle at the top
+mtext("n = 7", side = 3, line = -2)
+
  
 powers = sapply(delta_lower, function(delta) power(n, alpha, "lower", rnorm2d, delta))
 plot(delta_lower,powers)
