@@ -15,13 +15,8 @@ scorr = function(arr) {
 # and using asymptotic normality for large n
 
 cut_off = function(n, prob, alt) {
-<<<<<<< HEAD
-
-=======
  
   k = 10000
-  
->>>>>>> 26bd388226d7f5d834f67dc8e7217019b4c6b255
   if(n <=10) {
     rho = replicate(k, scorr(rbinorm(n)))
     cp = quantile(rho, prob)
