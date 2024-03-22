@@ -27,14 +27,10 @@ cut_off = function(n, prob, alt) {
   return(cp)
 }
 
-power = function(n, alpha, alt, func, ...) {
-  
-  
+power = function(n, alpha, alt, func, delta) {
   
   k = 10000
-  print("hell")
-  rho = replicate(k, scorr(func(n, ...)))
-  print("hello")
+  rho = replicate(k, scorr(func(n, delta)))
   if(alt == "upper") {
     cp = cut_off(n, 1-alpha, alt)
     power = mean(rho > cp)
@@ -49,7 +45,6 @@ power = function(n, alpha, alt, func, ...) {
     cp = cut_off(n, 1-alpha/2, alt)
     power = sum((rho > cp) | (rho < cp))/k
   }
-  print("helllloooo")
   
   return(power)
 }
