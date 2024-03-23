@@ -46,16 +46,57 @@ compute.u.statistic <- function(arr){
 
 }
 
+# 
+# #calculate cut-offs
+# U.stat.null.cutoff <- function(k,n,margins, param.margins){
+#   samples <- replicate(k, gen.sample(n,0,margins, param.margins))
+#   stat <- apply(samples,3,compute.u.statistic)
+#   hist(stat, freq = FALSE)
+#   lines(density(stat), col = "darkred")
+# } 
+# 
+# #testrun
+# U.stat.null.cutoff(1000, 15, c("exp","exp"), list(list(rate = 2),list(rate = 4)))
+# U.stat.null.cutoff(10000, 15, c("norm","norm"), list(list(0,1),list(2,9)))
 
-#calculate cut-offs
-U.stat.null.cutoff <- function(k,n,margins, param.margins){
-  samples <- replicate(k, gen.sample(n,0,margins, param.margins))
-  stat <- apply(samples,3,compute.u.statistic)
-  hist(stat, freq = FALSE)
-  lines(density(stat), col = "darkred")
-} 
 
 
-#testrun
-U.stat.null.cutoff(1000, 15, c("exp","exp"), list(list(rate = 2),list(rate = 4)))
-U.stat.null.cutoff(10000, 15, c("norm","norm"), list(list(0,1),list(2,9)))
+#Power Comparison
+U.stat.power <- function(n, alpha, alt, func, delta){
+  U.stat <- replicate(k, compute.u.statistic(func(n,delta)))
+  if(alt == "upper") {
+    #use asymptotic normality of U statistic
+    cp = cut_off(n, 1-alpha, alt)
+    power = mean(U.stat > cp)
+  }
+  
+  else if(alt == "lower") {
+    cp = cut_off(n, alpha, alt)
+    power = mean(U.stat < cp)
+  }
+  
+  else {
+    cp = cut_off(n, 1-alpha/2, alt)
+    power = sum((U.stat > cp) | (U.stat < cp))/k
+  }
+  
+  return(power)
+
+}
+
+
+#Right Tailed
+#bivariate normal
+#mckay bivariate gamma
+#bivariate t
+
+#Left Tailed Alternative
+#bivariate normal
+#custom exponential
+#bivariate t
+
+
+#Two-Sided Alternative
+#bivariate normal
+#bivariate t
+#bivariate logistic
