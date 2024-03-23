@@ -31,6 +31,7 @@ cut_off = function(n, prob, alt) {
 
 power = function(n, alpha, alt, func, delta) {
   k = 10000
+  print(delta)
   rho = replicate(k, scorr(func(n, delta)))
   if(alt == "upper") {
     cp = cut_off(n, 1-alpha, alt)
@@ -44,7 +45,7 @@ power = function(n, alpha, alt, func, delta) {
   
   else {
     cp = cut_off(n, 1-alpha/2, alt)
-    power = sum((rho > cp) | (rho < cp))/k
+    power = mean((rho > cp) | (rho < cp))
   }
   
   return(power)
@@ -55,7 +56,7 @@ alpha = 0.05
 
 # Power as a function of n
 
-nvals = c(2:10,seq(12,20,2),seq(30,100,10),seq(200,1000,100))
+nvals = c(2:10)#,seq(12,20,2),seq(30,100,10),seq(200,1000,100))
 powers = lapply(nvals, function(n) power(n, alpha, "upper", rbifgmcop, 0.5))#,mc.cores=4)
 plot(nvals,powers,log="x")
 
