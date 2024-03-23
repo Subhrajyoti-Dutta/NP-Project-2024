@@ -94,6 +94,16 @@ power <- function(n, alpha, alt, func, delta) {
 
 # Export necessary objects and functions to the workers
 clusterExport(cl, c("n", "alpha", "rbinorm", "power"))
+#========================================================================================================================
+width_img = 480
+height_img = 480
+type = 'p'
+color = "red"
+cex_sub = 1.5
+cex_main = 2
+main_line = 2.2
+sub_line = -25.5
+lwd = 5
 
 #========================================================================================================================
 #                                                          vary n
@@ -107,11 +117,11 @@ powers <- parSapply(cl, nvals, function(n) power(n, alpha, "upper", rnorm2d, 0.3
 # Stop the parallel cluster
 # stopCluster(cl)
 
-# plot(nvals[1:, powers[1:19], type = 'p', col = 'darkred', xlab = "n values", ylab = "Power", main = "Power vs n")
-png(file = paste(".\\var_with_n\\powervsn.png",sep=""), width = 960, height = 480)
-plot(nvals, powers, type = 'p', col = 'darkred', xlab = "n values", ylab = "Power", main = "Upper-Tailed")
-title(sub = paste("BVN (rho = ",0.3,")",sep=""), line = -14)
-
+png(file = ".\\power\\Upper-Tailed.png", width = width_img, height = height_img)
+plot(nvals, powers, xlab = "n values", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Upper-Tailed", line=main_line, cex.main=cex_main)
+title(sub = paste("BVN (rho = ",0.3,")", sep=""), line = sub_line, cex.sub=cex_sub)
+dev.off()
 #========================================================================================================================
 
 #2. Lower
@@ -122,161 +132,191 @@ powers <- parSapply(cl, nvals, function(n) power(n, alpha, "lower", rt2d, -0.3))
 # Stop the parallel cluster
 # stopCluster(cl)
 
-# plot(nvals[1:, powers[1:19], type = 'p', col = 'darkred', xlab = "n values", ylab = "Power", main = "Power vs n")
-plot(nvals, powers, type = 'p', col = 'darkred', xlab = "n values", ylab = "Power", main = "Lower-Tailed")
-title(sub = paste("BVT (rho = ",-0.3,")",sep=""), line = -14)
+png(file = ".\\power\\Lower-Tailed.png", width = width_img, height = height_img)
+plot(nvals, powers, xlab = "n values", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Lower-Tailed", line=main_line, cex.main=cex_main)
+title(sub = paste("BVT (rho = ",-0.3,")",sep=""), line = sub_line, cex.sub=cex_sub)
+dev.off()
 
 #========================================================================================================================
 
-#2. Both
+#3. Both
 # Run parSapply in parallel
 nvals = 2:30
 powers <- parSapply(cl, nvals, function(n) power(n, alpha, "both", rbiamhcop, 0.7))
 
 # Stop the parallel cluster
-stopCluster(cl)
+# stopCluster(cl)
 
-# plot(nvals[1:, powers[1:19], type = 'p', col = 'darkred', xlab = "n values", ylab = "Power", main = "Power vs n")
+png(file = ".\\power\\Both-Tailed.png", width = width_img, height = height_img)
+plot(nvals, powers, xlab = "n values", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Both-Tailed", line=main_line, cex.main=cex_main)
+title(sub = paste("AMH (asso = ",0.7,")",sep=""), line = sub_line, cex.sub=cex_sub)
+dev.off()
 
-plot(nvals, powers, type = 'p', col = 'darkred', xlab = "n values", ylab = "Power", main = "Two-Tailed")
-title(sub = paste("AMH (asso = ",0.7,")",sep=""), line = -14)
-#at asso = 0.7, scorr = 0.28 and pcorr = 0.29
+# at asso = 0.7, scorr = 0.28 and pcorr = 0.29
 
 #========================================================================================================================
 #                                                          rho > 0
 #========================================================================================================================
-# 
-# #1. BVN
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, delta_upper, function(delta) power(n, alpha, "upper", rnorm2d, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(delta_upper, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Normal")
-# title(sub = paste("n =",n), line = -14)
 
-# #========================================================================================================================
-# 
-# #2a. BVG
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, 0:50, function(delta) power(n, alpha, "upper", genGammaN, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(0:50, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Gamma")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #2b. BVG
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, 0:50, function(delta) power(n, alpha, "upper", genGammaM, delta))
-# 
-# # Stop the parallel cluster
+#1. BVN
+
+# Run parSapply in parallel
+powers <- parSapply(cl, delta_upper, function(delta) power(n, alpha, "upper", rnorm2d, delta))
+
+# Stop the parallel cluster
 # stopCluster(cl)
-# 
-# plot(0:50, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Gamma")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #========================================================================================================================
-# 
-# #3. BVT
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, delta_upper, function(delta) power(n, alpha, "upper", rt2d, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(delta_upper, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Student T")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #========================================================================================================================
-# #                                                          rho < 0
-# #========================================================================================================================
-# 
-# #1. BVN
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, delta_lower, function(delta) power(n, alpha, "lower", rnorm2d, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(delta_lower, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Normal")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #========================================================================================================================
-# 
-# #2. BVT
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, delta_lower, function(delta) power(n, alpha, "lower", rt2d, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(delta_lower, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Student T")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #========================================================================================================================
-# 
-# #3. CBVE
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, delta_lower, function(delta) power(n, alpha, "lower", genCusExpo, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(delta_lower, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Prop. Bivar Life Dist")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #========================================================================================================================
-# #                                                          rho != 0
-# #========================================================================================================================
-# 
-# #1. BVN
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, delta_both, function(delta) power(n, alpha, "both", rnorm2d, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(delta_both, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Normal")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #========================================================================================================================
-# 
-# #2. BVT
-# 
-# # Run parSapply in parallel
-# powers <- parSapply(cl, delta_both, function(delta) power(n, alpha, "both", rt2d, delta))
-# 
-# # Stop the parallel cluster
-# # stopCluster(cl)
-# 
-# plot(delta_both, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Bivariate Student T")
-# # plot(delta_lower, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Prop. Bivar Life Dist")
-# title(sub = paste("n =",n), line = -14)
-# 
-# #========================================================================================================================
-# 
+
+png(file = ".\\power\\Normal_Upper.png", width = width_img, height = height_img)
+plot(delta_upper, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+
+#2a. BVG
+
+# Run parSapply in parallel
+powers <- parSapply(cl, 0:50, function(delta) power(n, alpha, "upper", genGammaN, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+
+png(file = ".\\power\\Gamma1_Upper.png", width = width_img, height = height_img)
+plot(0:50, powers, xlab = "Association Parameter N", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate Gamma", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#2b. BVG
+
+# Run parSapply in parallel
+powers <- parSapply(cl, 0:50, function(delta) power(n, alpha, "upper", genGammaM, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+png(file = ".\\power\\Gamma2_Upper.png", width = width_img, height = height_img)
+plot(0:50, powers, xlab = "Association Parameter M", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate Gamma", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+
+#3. BVT
+
+# Run parSapply in parallel
+powers <- parSapply(cl, delta_upper, function(delta) power(n, alpha, "upper", rt2d, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+
+png(file = ".\\power\\T_Upper.png", width = width_img, height = height_img)
+plot(delta_upper, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate T", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+#                                                          rho < 0
+#========================================================================================================================
+
+#1. BVN
+
+# Run parSapply in parallel
+powers <- parSapply(cl, delta_lower, function(delta) power(n, alpha, "lower", rnorm2d, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+
+png(file = ".\\power\\Normal_Lower.png", width = width_img, height = height_img)
+plot(delta_lower, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+
+#2. BVT
+
+# Run parSapply in parallel
+powers <- parSapply(cl, delta_lower, function(delta) power(n, alpha, "lower", rt2d, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+
+png(file = ".\\power\\T_Lower.png", width = width_img, height = height_img)
+plot(delta_lower, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate T", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+
+#3. CBVE
+
+# Run parSapply in parallel
+powers <- parSapply(cl, delta_lower, function(delta) power(n, alpha, "lower", genCusExpo, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+
+png(file = ".\\power\\BVLD_Lower.png", width = width_img, height = height_img)
+plot(delta_lower, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Prop. Bivar Life Dist", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+#                                                          rho != 0
+#========================================================================================================================
+
+#1. BVN
+
+# Run parSapply in parallel
+powers <- parSapply(cl, delta_both, function(delta) power(n, alpha, "both", rnorm2d, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+
+png(file = ".\\power\\Normal_Both.png", width = width_img, height = height_img)
+plot(delta_both, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+
+#2. BVT
+
+# Run parSapply in parallel
+powers <- parSapply(cl, delta_both, function(delta) power(n, alpha, "both", rt2d, delta))
+
+# Stop the parallel cluster
+# stopCluster(cl)
+
+png(file = ".\\power\\T_Both.png", width = width_img, height = height_img)
+plot(delta_both, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "Bivariate Student T", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
+
+#========================================================================================================================
+
 #3. AMH
-# 
-# alpha_both = seq(-0.7,0.7,0.02)
-# # Run parSapply in parallel
-# powers <- parSapply(cl, alpha_both, function(delta) power(n, alpha, "both", rbiamhcop, delta))
-# 
-# # Stop the parallel cluster
-# stopCluster(cl)
-# #spearman's rho for the above range is (-0.2,0.3)
-# 
-# plot(alpha_both, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "AMH (Uniform Marginals)")
-# # plot(delta_lower, powers, type = 'p', col = 'darkred', xlab = "Association Parameter", ylab = "Power", main = "Prop. Bivar Life Dist")
-# title(sub = paste("n =",n), line = -14)
-# 
+
+alpha_both = seq(-0.7,0.7,0.02)
+# Run parSapply in parallel
+powers <- parSapply(cl, alpha_both, function(delta) power(n, alpha, "both", rbiamhcop, delta))
+
+# Stop the parallel cluster
+stopCluster(cl)
+#spearman's rho for the above range is (-0.2,0.3)
+
+png(file = ".\\power\\AMH_Both.png", width = width_img, height = height_img)
+plot(alpha_both, powers, xlab = "Association Parameter", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+title(main = "AMH (Uniform Marginals)", line=main_line, cex.main=cex_main)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+dev.off()
