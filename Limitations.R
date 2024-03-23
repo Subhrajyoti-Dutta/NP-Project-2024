@@ -7,11 +7,13 @@ set.seed(22)
 scorr <- function(arr){
   cor(arr[,1],arr[,2], method = "spearman")
 }
+
 gen.sample <- function(n, param.cop, margins, param.margins){
   cop <- fgmCopula(param.cop, dim = 2)
   mv.BivariateD <- mvdc(cop, margins, param.margins)
   rMvdc(n, mv.BivariateD)
 }
+
 nullD <- function(k, n, margins, param.margins){
   samples <- replicate(k, gen.sample(n,0, margins, param.margins)) 
   apply(samples, 3, scorr)
