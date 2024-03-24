@@ -1,6 +1,6 @@
 #Limitation 
 library('copula')
-set.seed(22)
+#set.seed(22)
 
 ##Discrete
 
@@ -20,8 +20,9 @@ nullD <- function(k, n, margins, param.margins){
 }
 
 #null distribution
-hist(nullD(10000, 7, c("pois","pois"),list(list(2),list(4))), freq = FALSE)
-hist(nullD(10000,7, c("geom","geom"),list(list(0.2),list(0.5))), freq = FALSE) #getting warnings for small values of n
+hist(nullD(10000, 7, c("pois","pois"),list(list(2),list(4))))
+hist(nullD(10000,7, c("geom","geom"),list(list(0.2),list(0.5)))) #getting warnings for small values of n
+hist(nullD(10000,7, c("norm","norm"),list(list(1,1.5),list(2,2.5))))
 
 #power analysis
 
@@ -30,15 +31,15 @@ hist(nullD(10000,7, c("geom","geom"),list(list(0.2),list(0.5))), freq = FALSE) #
 ##Non independent Samples
 spearman.rho <- c()
 for (k in 1:10000){
-  x <- rnorm(10)
+  x <- rnorm(7)
   y <- c(runif(1))
-  for(i in 2:10){
+  for(i in 2:7){
     y[i] <- y[1]*i
   }
   spearman.rho[k] <- cor(x,y+x,method = "spearman")
 }
 
-
+hist(spearman.rho)
 
 
 
@@ -53,7 +54,7 @@ for (n in nvals){
   cor_vals[i] <- cor(X,Y, method = "spearman")
   i <- i+1
 }
-hist(cor_vals, freq = FALSE)
+hist(cor_vals)
 plot(nvals, cor_vals, main = "Spearman's Correlation between X and Y")
 abline(h = 0, col = "red", lty = 2)
 abline(h = c(0.5,-0.5), col = "blue", lty = 2)
