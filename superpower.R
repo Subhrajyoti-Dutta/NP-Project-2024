@@ -10,65 +10,49 @@ k = 10000
 cl <- makeCluster(num_cores)
 
 # Load necessary libraries and export functions/objects to workers
-clusterEvalQ(cl, {
-  library(VGAM)
-  library(fMultivar)
-  
-  set.seed(56)
-  
-  # Define the scorr function
-  scorr <- function(arr) {
-    cor(arr[,1], arr[,2], method = 'spearman')
-  }
-  
-  # Define the cut_off function
-  cut_off <- function(n, prob) {
-    k <- 10000
-    if(n <= 10) {
-      rho <- replicate(k, scorr(rbinorm(n)))
-      cp <- quantile(rho, prob)
-    } else {
-      cp <- qnorm(prob, sd = 1/sqrt(n-1))
-    }
-    names(cp) <- NULL
-    return(cp)
-  }
-  
-  genGammaN = function(n, N){
-    M = 5
-    x = rgamma(n, M)
-    y = rgamma(n, N)
-    cbind(x, x+y)
-  }
-  
-  genGammaM = function(n, M){
-    N = 5
-    x = rgamma(n, M)
-    y = rgamma(n, N)
-    cbind(x, x+y)
-  }
-  
-  genCusExpo = function(n, rho){
-    l = 5
-    c = (l+1)^2/(l*(l+2))
-    a = c * (l+1)^2 * rho^2
-    b = c * rho^2
-    mu = max(((2*b+2) + sqrt((2*b+2)^2 - 4*(b-1)*a))/(2*(b-1)),
-             ((2*b+2) - sqrt((2*b+2)^2 - 4*(b-1)*a))/(2*(b-1)))
-    z1 = rexp(n,l)
-    z2 = rexp(n,mu)
-    cbind(z1,exp(z2-z1))
-  }
-})
 
-# Define power function
-# k =10000
-n <- 20
-alpha <- 0.05
 
-delta_upper = seq(0,0.5,0.01)
-delta_lower = seq(-0.5,0,0.01)
-delta_both = seq(-0.5,0.5,0.01)
+scorr <- function(arr) {
+  cor(arr[,1], arr[,2], method = 'spearman')
+}
+
+cut_off <- function(n, prob) {
+  k <- 10000
+  if(n <= 10) {
+    rho <- replicate(k, scorr(rbinorm(n)))
+    cp <- quantile(rho, prob)
+  } else {
+    cp <- qnorm(prob, sd = 1/sqrt(n-1))
+  }
+  names(cp) <- NULL
+  return(cp)
+}
+
+genGammaN = function(n, N){
+  M = 5
+  x = rgamma(n, M)
+  y = rgamma(n, N)
+  cbind(x, x+y)
+}
+
+genGammaM = function(n, M){
+  N = 5
+  x = rgamma(n, M)
+  y = rgamma(n, N)
+  cbind(x, x+y)
+}
+
+genCusExpo = function(n, rho){
+  l = 5
+  c = (l+1)^2/(l*(l+2))
+  a = c * (l+1)^2 * rho^2
+  b = c * rho^2
+  mu = max(((2*b+2) + sqrt((2*b+2)^2 - 4*(b-1)*a))/(2*(b-1)),
+           ((2*b+2) - sqrt((2*b+2)^2 - 4*(b-1)*a))/(2*(b-1)))
+  z1 = rexp(n,l)
+  z2 = rexp(n,mu)
+  cbind(z1,exp(z2-z1))
+}
 
 power <- function(n, alpha, alt, func, delta) {
   k = 10000
@@ -92,14 +76,32 @@ power <- function(n, alpha, alt, func, delta) {
   return(power)
 }
 
+
+
+# Define power function
+n <- 20
+alpha <- 0.05
+
+delta_upper = seq(0,0.5,0.01)
+delta_lower = seq(-0.5,0,0.01)
+delta_both = seq(-0.5,0.5,0.01)
+
+
 # Export necessary objects and functions to the workers
-clusterExport(cl, c("n", "alpha", "rbinorm", "power"))
+clusterEvalQ(cl, {
+  library(VGAM)
+  library(fMultivar)
+  set.seed(56)
+})
+
+clusterExport(cl, c("n", "alpha","scorr","cut_off","genGammaN","genGammaM","genCusExpo","power"))
 #========================================================================================================================
 width_img = 480
 height_img = 480
 type = 'p'
-color = "red"
+color = "blue"
 cex_sub = 1.5
+cex_lab = 1.5
 cex_main = 2
 main_line = 2.2
 sub_line = -25.5
@@ -150,7 +152,7 @@ powers <- parSapply(cl, nvals, function(n) power(n, alpha, "both", rbiamhcop, 0.
 
 png(file = ".\\power\\Both-Tailed.png", width = width_img, height = height_img)
 plot(nvals, powers, xlab = "n values", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
-title(main = "Both-Tailed", line=main_line, cex.main=cex_main)
+title(main = "Two-Tailed", line=main_line, cex.main=cex_main)
 title(sub = paste("AMH (asso = ",0.7,")",sep=""), line = sub_line, cex.sub=cex_sub)
 dev.off()
 
@@ -198,7 +200,7 @@ powers <- parSapply(cl, 0:50, function(delta) power(n, alpha, "upper", genGammaM
 # Stop the parallel cluster
 # stopCluster(cl)
 png(file = ".\\power\\Gamma2_Upper.png", width = width_img, height = height_img)
-plot(0:50, powers, xlab = "Association Parameter M", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
+plot(seq(0,10,0.2), powers, xlab = "Association Parameter M", ylab = "Power", lwd=lwd, type = type, col = color, cex.lab=cex_lab) 
 title(main = "Bivariate Gamma", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
 dev.off()
