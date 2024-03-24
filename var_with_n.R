@@ -18,7 +18,7 @@ for (n in nvals){
   par(mfrow=c(1,2))
   hist(rho,xlim = c(-3,3),breaks=12,main = "",xlab="Correlation (rho)")
   plot(ecdf(rho),xlim=c(-3,3),main = "",xlab="Correlation (rho)")
-  lines(seq(-3,3,1/1000),pnorm(seq(-3,3,1/1000)),col="red")
+  lines(seq(-3,3,1/1000),pnorm(seq(-3,3,1/1000)),col="blue")
   mtext(paste("Distribution at n =",n), side = 3, line = - 2, outer = TRUE)
   dev.off()
 }
