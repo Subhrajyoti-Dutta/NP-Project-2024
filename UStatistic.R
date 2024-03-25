@@ -1,8 +1,5 @@
 #Comparison with U statistics
-library('copula')
-
-x <- cbind(seq(1:5),seq(1,5))
-combn(seq(1:5),2)
+# library('copula')
 
 compute.kernel.sy <- function(arr){
   count <- 0
