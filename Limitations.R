@@ -48,7 +48,7 @@ non_iden = function(n) {
   
   for (i in i:n) {
     x[i] = rnorm(1, i/2, sqrt(i/4))
-    y[i] = rnorm(1, i/2, sqrt(i/4))
+    y[i] = rnorm(1, i, sqrt(i/4))
   }
   cbind(x,y)
 }
@@ -71,27 +71,16 @@ for (n in c(7,20)){
 
 non_ind = function(n){
   x <- rnorm(n)
-  y[1] <- runif(1)
+  y[1] <- c(runif(1))
   for(i in 2:n){
-    x[i] <- sqrt(x[i-1])
-    y[i] <- (-1)**(i%%3)*y[i-1]
+    y[i] <- i*y[1] + x[i]
   }
   cbind(x,y)
 }
 
-k = 10000
-dists = c(non_ind, Normal, Tdist)
-names = c("Dependent", "BVN", "BVT")
-
-for (n in c(7,20)){
-  png(file=paste(".\\viol_lim\\together_non_ind",n,".png",sep=""),width=1200,height=600)
-  par(mfrow=c(1,3))
-  for (i in 1:3){
-    rho <- replicate(k, scorr(dists[[i]](n)))
-    hist(rho,xlim = c(-1,1),main = names[i],xlab="S. Correlation (rho)",cex.lab=1.5,cex.main=2)
-  }
-  dev.off()
-}
+rho = replicate(k, scorr(non_ind(n)))
+power = mean(rho > cut_off(n, 0.95))
+power
 
 # Only Monotonic Association can be captured
 n <- 7
