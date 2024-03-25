@@ -1,5 +1,7 @@
 library("fMultivar")
 
+set.seed(42)
+
 # Violation of Assumptions 
 # Case of Discrete Bivariate Distributions
 
@@ -17,55 +19,52 @@ Tdist = function(n){
 }
 
 Geom = function(n){
-  cbind(rgeom(n,0.4),rgeom(n,0.5))
+  cbind(rgeom(n,0.5),rgeom(n,0.5))
 }
 
 Pois = function(n){
   cbind(rpois(n,1),rpois(n,1))
 }
 
-set.seed(42)
-
 k = 10000
 dists = c(Normal, Geom, Tdist, Pois)
 names = c("BVN", "BVG", "BVT", "BVP")
 
 for (n in c(7,20)){
-  png(file=paste(".\\dist_free\\together_lim",n,".png",sep=""),width=1200,height=800)
+  png(file=paste(".\\viol_lim\\together_discrete",n,".png",sep=""),width=1200,height=800)
   par(mfrow=c(2,2))
   for (i in 1:4){
     rho <- replicate(500, scorr(dists[[i]](n)))
-    hist(rho,xlim = c(-1,1),main = names[i],xlab="Correlation (rho)",cex.lab=1.5,cex.main=2)
+    hist(rho,xlim = c(-1,1),main = names[i],xlab="S. Correlation (rho)",cex.lab=1.5,cex.main=2)
   }
   dev.off()
 }
 
 
 # Non-independent Samples
-spearman.rho <- c()
-for (k in 1:10000){
+
+non_iid = function(n){
   x <- rnorm(7)
   y[1] <- rbeta(1,3,4) + x[1]
-  for(i in 2:7){
+  for(i in 2:n){
     y[i] <- i*y[i-1] + x[i]
   }
-  spearman.rho[k] <- cor(x,y,method = "spearman")
+  cbind(x,y)
 }
 
-hist(spearman.rho)
+k = 10000
+dists = c(non_iid, Normal, Tdist)
+names = c("Non-IID Model", "BVN", "BVT")
 
-
-spearman.rho <- c()
-for (k in 1:10000){
-  x <- rnorm(7)
-  y[1] <- rbeta(1,3,4) + x[1]
-  for(i in 2:7){
-    y[i] <- i*y[i-1] + x[i]
+for (n in c(7,20)){
+  png(file=paste(".\\viol_lim\\together_non_iid",n,".png",sep=""),width=900,height=600)
+  par(mfrow=c(1,3))
+  for (i in 1:3){
+    rho <- replicate(500, scorr(dists[[i]](n)))
+    hist(rho,xlim = c(-1,1),main = names[i],xlab="S. Correlation (rho)",cex.lab=1.5,cex.main=2)
   }
-  spearman.rho[k] <- cor(x,y,method = "spearman")
+  dev.off()
 }
-
-hist(spearman.rho)
 
 # Only Monotonic Association can be captured
 n <- 7
