@@ -1,6 +1,6 @@
 library("fMultivar")
 
-set.seed(42)
+#set.seed(423)
 
 # Violation of Assumptions 
 # Case of Discrete Bivariate Distributions
@@ -34,33 +34,60 @@ for (n in c(7,20)){
   png(file=paste(".\\viol_lim\\together_discrete",n,".png",sep=""),width=1200,height=800)
   par(mfrow=c(2,2))
   for (i in 1:4){
-    rho <- replicate(500, scorr(dists[[i]](n)))
+    rho <- replicate(k, scorr(dists[[i]](n)))
     hist(rho,xlim = c(-1,1),main = names[i],xlab="S. Correlation (rho)",cex.lab=1.5,cex.main=2)
   }
   dev.off()
 }
 
+# non_identical sample
+
+non_iden = function(n) {
+  x = rep(1,n)
+  y = rep(1,n)
+  
+  for (i in i:n) {
+    x[i] = rnorm(1, i/2, sqrt(i/4))
+    y[i] = rnorm(1, i/2, sqrt(i/4))
+  }
+  cbind(x,y)
+}
+
+dists = c(non_iden, Normal, Tdist)
+names = c("Non-Identical", "BVN", "BVT")
+
+for (n in c(7,20)){
+  png(file=paste(".\\viol_lim\\together_non_iden",n,".png",sep=""),width=1200,height=600)
+  par(mfrow=c(1,3))
+  for (i in 1:3){
+    rho <- replicate(k, scorr(dists[[i]](n)))
+    hist(rho,xlim = c(-1,1),main = names[i],xlab="S. Correlation (rho)",cex.lab=1.5,cex.main=2)
+  }
+
+  dev.off()
+}
 
 # Non-independent Samples
 
-non_iid = function(n){
-  x <- rnorm(7)
-  y[1] <- rbeta(1,3,4) + x[1]
+non_ind = function(n){
+  x <- rnorm(n)
+  y[1] <- runif(1)
   for(i in 2:n){
-    y[i] <- i*y[i-1] + x[i]
+    x[i] <- sqrt(x[i-1])
+    y[i] <- (-1)**(i%%3)*y[i-1]
   }
   cbind(x,y)
 }
 
 k = 10000
-dists = c(non_iid, Normal, Tdist)
-names = c("Non-IID Model", "BVN", "BVT")
+dists = c(non_ind, Normal, Tdist)
+names = c("Dependent", "BVN", "BVT")
 
 for (n in c(7,20)){
-  png(file=paste(".\\viol_lim\\together_non_iid",n,".png",sep=""),width=900,height=600)
+  png(file=paste(".\\viol_lim\\together_non_ind",n,".png",sep=""),width=1200,height=600)
   par(mfrow=c(1,3))
   for (i in 1:3){
-    rho <- replicate(500, scorr(dists[[i]](n)))
+    rho <- replicate(k, scorr(dists[[i]](n)))
     hist(rho,xlim = c(-1,1),main = names[i],xlab="S. Correlation (rho)",cex.lab=1.5,cex.main=2)
   }
   dev.off()
@@ -68,56 +95,59 @@ for (n in c(7,20)){
 
 # Only Monotonic Association can be captured
 n <- 7
-# eg 1
+
+# eg 1.1
 x <- rnorm(n)
 y <- x^2
-rho <- cor(x,y, method = 'spearman')
-print(paste("rho =", rho))
 
-# expecting positive association, so will carry out upper-tailed test, alpha = 0.05
-critic <- cut_off(n, 0.95)
-print(paste("critical value =", critic))
-
-if(rho < critic) {
-  print("Hence, we fail to Reject H_0, so X and Y are independent.")
+genlimdista1 = function(n){
+  x = rnorm(n)
+  y = x^2
+  cbind(x, y)
 }
 
-genlimdista = function(n){
+# eg 1.2
+x <- rexp(n)
+y <- x^2
+
+genlimdista2 = function(n){
   x = rexp(n) #rexp(n) for showing monotone
   y = x^2
   cbind(x, y)
 }
 
-k = 10000
-rho = replicate(k, scorr(genlimdista(n)))
-cp = cut_off(n, 0.95)
-power = mean(rho > cp)
-
-print(paste("Power of this test is ", power))
-
-# eg 2
+# eg 2.1
 x <- runif(n, -1, 1) #runif(n) for showing monotone
 y <- cos(x)
-rho <- cor(x,y, method = 'spearman')
-print(paste("rho =", rho))
 
-# not sure whether to expect positive or negative association, so will carry out two-tailed test, alpha = 0.05
-critic <- cut_off(n, 0.975)
-print(paste("critical value =", critic))
-
-if((-critic < rho) & (rho < critic)) {
-  print("Hence, we fail to Reject H_0, so X and Y are independent.")
+genlimdistb1 = function(n){
+  x = runif(n,-1,1)
+  y = cos(x)
+  cbind(x, y)
 }
 
-genlimdistb = function(n){
+# eg 2.2
+x <- runif(n, -1, 1) #runif(n) for showing monotone
+y <- cos(x)
+
+genlimdistb2 = function(n){
   x = runif(n,0,1)
   y = cos(x)
   cbind(x, y)
 }
 
-rho = replicate(k, scorr(genlimdistb(n)))
-cp = cut_off(n, 0.975)
-power = mean((rho < -cp) | (rho > cp))
+# not sure whether to expect positive or negative association, so will carry out two-tailed test, alpha = 0.05
+cor.test(x, y, alternative = "two.sided", method="spearman")
 
-print(paste("Power of this test is ", power))
+# Power Estimation
 
+critic <- cut_off(n, 0.975)
+
+limdists = c(genlimdista1, genlimdista2, genlimdistb1, genlimdistb2)
+
+for (i in 1:4) {
+  rho = replicate(k, scorr(limdists[[i]](n)))
+  power = mean((rho < -critic) | (rho > critic))
+  
+  print(paste("Power of this test is ", power))
+}

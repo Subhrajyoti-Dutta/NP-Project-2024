@@ -144,6 +144,10 @@ cex_main = 2
 main_line = 2.2
 sub_line = -25.5
 lwd = 1
+pos = "bottomright"
+names = c("U-Statistic","Spearman's rho")
+coll = c("blue","red")
+
 
 #========================================================================================================================
 #                                                          vary n
@@ -161,6 +165,7 @@ plot(nvals, powersU, xlab = "n values", ylab = "Power", lwd=lwd,ylim=c(minm,maxm
 lines(nvals, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Upper-Tailed", line=main_line, cex.main=cex_main)
 title(sub = paste("BVN (rho = ",0.3,")", sep=""), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 #========================================================================================================================
 
@@ -175,6 +180,7 @@ plot(nvals, powersU, xlab = "n values", ylab = "Power", lwd=lwd, ylim=c(minm,max
 lines(nvals, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Lower-Tailed", line=main_line, cex.main=cex_main)
 title(sub = paste("BVT (rho = ",-0.3,")",sep=""), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -190,6 +196,7 @@ plot(nvals, powersU, xlab = "n values", ylab = "Power", lwd=lwd, ylim=c(minm,max
 lines(nvals, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Two-Tailed", line=main_line, cex.main=cex_main)
 title(sub = paste("AMH (asso = ",0.7,")",sep=""), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 # at asso = 0.7, scorr = 0.28 and pcorr = 0.29
@@ -211,6 +218,7 @@ plot(delta_upper, powersU, xlab = "Association Parameter", ylab = "Power", lwd=l
 lines(delta_upper, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -228,6 +236,7 @@ plot(0:50, powersU, xlab = "Association Parameter N", ylab = "Power", lwd=lwd, y
 lines(0:50, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Gamma", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
 
 #2b. BVG
@@ -243,6 +252,7 @@ plot(seq(0.2,10,0.2), powersU, xlab = "Association Parameter M", ylab = "Power",
 lines(seq(0.2,10,0.2), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Gamma", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -262,6 +272,7 @@ plot(delta_upper, powersU, xlab = "Association Parameter", ylab = "Power",ylim=c
 lines(delta_upper, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate T", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -280,6 +291,7 @@ plot(delta_lower, powersU, xlab = "Association Parameter", ylab = "Power", lwd=l
 lines(delta_lower, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -296,6 +308,7 @@ plot(delta_lower, powersU, xlab = "Association Parameter", ylab = "Power", lwd=l
 lines(delta_lower, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate T", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -312,6 +325,7 @@ plot(delta_lower, powersU, xlab = "Association Parameter", ylab = "Power", lwd=l
 lines(delta_lower, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Prop. Bivar Life Dist", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -330,6 +344,7 @@ plot(delta_both, powersU, xlab = "Association Parameter", ylab = "Power", lwd=lw
 lines(delta_both, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -344,8 +359,9 @@ minm = min(powersU,powers)
 png(file = ".\\Ustatpower\\T_Both.png", width = width_img, height = height_img)
 plot(delta_both, powersU, xlab = "Association Parameter", ylab = "Power", lwd=lwd,ylim=c(minm,maxm), type = type, col = color, cex.lab=cex_lab)
 lines(delta_both, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
-title(main = "Bivariate Student T", line=main_line, cex.main=cex_main)
+title(main = "Bivariate T", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -363,6 +379,7 @@ plot(alpha_both, powersU, xlab = "Association Parameter", ylab = "Power", lwd=lw
 lines(alpha_both, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "AMH (Uniform Marginals)", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 #
 # powers <- parSapply(cl,nvals, function(n) {
