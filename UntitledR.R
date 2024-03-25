@@ -16,7 +16,7 @@ for (i in 1:20){
 }
 
 rangx = seq(-5,5,0.00001)
-rangy = exp(rangx)-rangx*b
+rangy = exp(rangx)-rangx*t
 
 print(c(cor(rangx, rangy),
         cor(rangx, rangy, method='spearman')))
