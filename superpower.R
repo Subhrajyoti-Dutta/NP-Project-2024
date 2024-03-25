@@ -1,16 +1,8 @@
 # Load necessary libraries
+library("combinat")
 library(parallel)
 library(VGAM)
 library(fMultivar)
-
-# Define the number of cores to use
-num_cores <- detectCores()
-k = 10000
-# Initialize a parallel cluster
-cl <- makeCluster(num_cores)
-
-# Load necessary libraries and export functions/objects to workers
-
 
 scorr <- function(arr) {
   cor(arr[,1], arr[,2], method = 'spearman')
@@ -56,7 +48,10 @@ genCusExpo = function(n, rho){
 
 power <- function(n, alpha, alt, func, delta) {
   k = 10000
-  rho = replicate(k, scorr(func(n, delta)))
+  # rho = replicate(k, scorr())
+  arr = func(n*k, delta)
+  dim(arr) = c(k,n,2)
+  rho = apply(arr,1,scorr)
   if(alt == "upper") {
     cp = cut_off(n, 1-alpha)
     power = mean(rho > cp)
@@ -77,8 +72,10 @@ power <- function(n, alpha, alt, func, delta) {
 }
 
 
-# Define power function
-n <- 7
+
+
+# Define power credentials
+n <- 20
 alpha <- 0.05
 
 delta_upper = seq(0,0.5,0.01)
@@ -87,10 +84,11 @@ delta_both = seq(-0.5,0.5,0.01)
 
 
 # Export necessary objects and functions to the workers
+num_cores <- detectCores()
+cl <- makeCluster(num_cores)
 clusterEvalQ(cl, {
   library(VGAM)
   library(fMultivar)
-  set.seed(56)
 })
 
 clusterExport(cl, c("n", "alpha","scorr","cut_off","genGammaN","genGammaM","genCusExpo","power"))

@@ -1,12 +1,22 @@
-rho = c()
-rang = seq(-1,1,0.02)
-for (i in rang){
-  # print(cor(rbiamhcop(10000, i)))
-  rho = c(rho,cor(rbiamhcop(10000, i),method="spearman")[1,2])
+
+a=1
+b=10
+for (i in 1:20){
+  for (j in seq(a,b,10^(-i))){
+    rangx = seq(-5,5,0.001)
+    rangy = exp(rangx)-rangx*j
+    
+    print(c(j,cor(rangx, rangy), cor(rangx, rangy, method='spearman')))
+    if (cor(rangx, rangy) < 0) {
+      b = j
+      a = b - 10^(-i)
+      break
+    }
+  }
 }
-mat = cbind(rang,rang^2,rang^3,rang^4,rang^5,rang^6,rang^7,rang^8,rang^9,rang^10)
-plot(rang, rho, col="red")
-model = lm(rho ~ mat-1)
-lines(rang, mat %*% unname(model$coeff))
-model$coeff
-cbind(rang,rho)
+
+rangx = seq(-5,5,0.00001)
+rangy = exp(rangx)-rangx*t
+
+print(c(cor(rangx, rangy),
+        cor(rangx, rangy, method='spearman')))
