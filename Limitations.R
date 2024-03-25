@@ -1,63 +1,124 @@
-#Limitation 
-library('copula')
-#set.seed(22)
+library("fMultivar")
 
-##Discrete
+# Violation of Assumptions 
+# Case of Discrete Bivariate Distributions
 
 scorr <- function(arr){
-  cor(arr[,1],arr[,2], method = "spearman")
+  t = cor(arr[,1],arr[,2], method = "spearman")
+  return(t)
 }
 
-gen.sample <- function(n, param.cop, margins, param.margins){
-  cop <- fgmCopula(param.cop, dim = 2)
-  mv.BivariateD <- mvdc(cop, margins, param.margins)
-  rMvdc(n, mv.BivariateD)
+Normal = function(n){
+  cbind(rnorm(n),rnorm(n))
 }
 
-nullD <- function(k, n, margins, param.margins){
-  samples <- replicate(k, gen.sample(n,0, margins, param.margins)) 
-  apply(samples, 3, scorr)
+Tdist = function(n){
+  cbind(rt(n,4), rt(n,4))
 }
 
-#null distribution
-hist(nullD(10000, 7, c("pois","pois"),list(list(2),list(4))))
-hist(nullD(10000,7, c("geom","geom"),list(list(0.2),list(0.5)))) #getting warnings for small values of n
-hist(nullD(10000,7, c("norm","norm"),list(list(1,1.5),list(2,2.5))))
+Geom = function(n){
+  cbind(rgeom(n,0.4),rgeom(n,0.5))
+}
 
-#power analysis
+Pois = function(n){
+  cbind(rpois(n,1),rpois(n,1))
+}
+
+set.seed(42)
+
+k = 10000
+dists = c(Normal, Geom, Tdist, Pois)
+names = c("BVN", "BVG", "BVT", "BVP")
+
+for (n in c(7,20)){
+  png(file=paste(".\\dist_free\\together_lim",n,".png",sep=""),width=1200,height=800)
+  par(mfrow=c(2,2))
+  for (i in 1:4){
+    rho <- replicate(500, scorr(dists[[i]](n)))
+    hist(rho,xlim = c(-1,1),main = names[i],xlab="Correlation (rho)",cex.lab=1.5,cex.main=2)
+  }
+  dev.off()
+}
 
 
-
-##Non independent Samples
+# Non-independent Samples
 spearman.rho <- c()
 for (k in 1:10000){
   x <- rnorm(7)
-  y <- c(runif(1))
+  y[1] <- rbeta(1,3,4) + x[1]
   for(i in 2:7){
-    y[i] <- y[1]*i
+    y[i] <- i*y[i-1] + x[i]
   }
-  spearman.rho[k] <- cor(x,y+x,method = "spearman")
+  spearman.rho[k] <- cor(x,y,method = "spearman")
 }
 
 hist(spearman.rho)
 
 
-
-##Zero Correlation is not equivalent to independence
-
-nvals <- seq(5,100, by=1)
-cor_vals <- c()
-i <- 1
-for (n in nvals){
-  X <- rnorm(n)
-  Y <- X^2
-  cor_vals[i] <- cor(X,Y, method = "spearman")
-  i <- i+1
+spearman.rho <- c()
+for (k in 1:10000){
+  x <- rnorm(7)
+  y[1] <- rbeta(1,3,4) + x[1]
+  for(i in 2:7){
+    y[i] <- i*y[i-1] + x[i]
+  }
+  spearman.rho[k] <- cor(x,y,method = "spearman")
 }
-hist(cor_vals)
-plot(nvals, cor_vals, main = "Spearman's Correlation between X and Y")
-abline(h = 0, col = "red", lty = 2)
-abline(h = c(0.5,-0.5), col = "blue", lty = 2)
-mean(cor_vals)
 
-#as the values of n increase, the mean value of cor gets closer and closer to 0
+hist(spearman.rho)
+
+# Only Monotonic Association can be captured
+n <- 7
+# eg 1
+x <- rnorm(n)
+y <- x^2
+rho <- cor(x,y, method = 'spearman')
+print(paste("rho =", rho))
+
+# expecting positive association, so will carry out upper-tailed test, alpha = 0.05
+critic <- cut_off(n, 0.95)
+print(paste("critical value =", critic))
+
+if(rho < critic) {
+  print("Hence, we fail to Reject H_0, so X and Y are independent.")
+}
+
+genlimdista = function(n){
+  x = rexp(n) #rexp(n) for showing monotone
+  y = x^2
+  cbind(x, y)
+}
+
+k = 10000
+rho = replicate(k, scorr(genlimdista(n)))
+cp = cut_off(n, 0.95)
+power = mean(rho > cp)
+
+print(paste("Power of this test is ", power))
+
+# eg 2
+x <- runif(n, -1, 1) #runif(n) for showing monotone
+y <- cos(x)
+rho <- cor(x,y, method = 'spearman')
+print(paste("rho =", rho))
+
+# not sure whether to expect positive or negative association, so will carry out two-tailed test, alpha = 0.05
+critic <- cut_off(n, 0.975)
+print(paste("critical value =", critic))
+
+if((-critic < rho) & (rho < critic)) {
+  print("Hence, we fail to Reject H_0, so X and Y are independent.")
+}
+
+genlimdistb = function(n){
+  x = runif(n,0,1)
+  y = cos(x)
+  cbind(x, y)
+}
+
+rho = replicate(k, scorr(genlimdistb(n)))
+cp = cut_off(n, 0.975)
+power = mean((rho < -cp) | (rho > cp))
+
+print(paste("Power of this test is ", power))
+

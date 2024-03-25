@@ -14,7 +14,7 @@ scorr = function(arr) {
 # by simulating null distribution of rho for small n, 
 # and using asymptotic normality for large n
 
-cut_off = function(n, prob, alt) {
+cut_off = function(n, prob) {
  
   k = 10000
   if(n <=10) {

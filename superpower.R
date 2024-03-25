@@ -77,9 +77,8 @@ power <- function(n, alpha, alt, func, delta) {
 }
 
 
-
 # Define power function
-n <- 20
+n <- 7
 alpha <- 0.05
 
 delta_upper = seq(0,0.5,0.01)
