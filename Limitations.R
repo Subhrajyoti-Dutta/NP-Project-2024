@@ -3,7 +3,7 @@ library("fMultivar")
 #set.seed(423)
 
 # Violation of Assumptions 
-# Case of Discrete Bivariate Distributions
+# Discrete Case
 
 scorr <- function(arr){
   t = cor(arr[,1],arr[,2], method = "spearman")
@@ -14,8 +14,8 @@ Normal = function(n){
   cbind(rnorm(n),rnorm(n))
 }
 
-Tdist = function(n){
-  cbind(rt(n,4), rt(n,4))
+Binom = function(n){
+  cbind(rbinom(n,5,0.5), rbinom(n,5,0.5))
 }
 
 Geom = function(n){
@@ -27,8 +27,8 @@ Pois = function(n){
 }
 
 k = 10000
-dists = c(Normal, Geom, Tdist, Pois)
-names = c("BVN", "BVG", "BVT", "BVP")
+dists = c(Normal, Binom, Geom, Pois)
+names = c("BVN", "BVB", "BVG", "BVP")
 
 for (n in c(7,20)){
   png(file=paste(".\\viol_lim\\together_discrete",n,".png",sep=""),width=1200,height=800)
@@ -42,24 +42,58 @@ for (n in c(7,20)){
 
 # non_identical sample
 
-non_iden = function(n) {
+non_iden.1 = function(n) {
   x = rep(1,n)
   y = rep(1,n)
   
   for (i in i:n) {
-    x[i] = rnorm(1, i/2, sqrt(i/4))
-    y[i] = rnorm(1, i, sqrt(i/4))
+    x[i] = rnorm(1) 
+    y[i] = rnorm(1)
   }
   cbind(x,y)
 }
 
-dists = c(non_iden, Normal, Tdist)
-names = c("Non-Identical", "BVN", "BVT")
+non_iden.2 = function(n) {
+  x = rep(1,n)
+  y = rep(1,n)
+  
+  for (i in i:n) {
+    x[i] = rnorm(1, i, i) 
+    y[i] = rnorm(1, i, i)
+  }
+  cbind(x,y)
+}
+
+non_iden.3 = function(n) {
+  x = rep(1,n)
+  y = rep(1,n)
+  
+  for (i in i:n) {
+    x[i] = rexp(1, 1/i)
+    y[i] = rexp(1, 1/i)
+  }
+  cbind(x,y)
+}
+
+non_iden.4 = function(n) {
+  x = rep(1,n)
+  y = rep(1,n)
+  
+  for (i in i:n) {
+    x[i] = rexp(1, i)
+    y[i] = rexp(1, i)
+  }
+  cbind(x,y)
+}
+
+
+dists = c(non_iden.1, non_iden.2, non_iden.3, non_iden.4)
+names = c("BVN1", "BVN2", "BVE1", "BVE2")
 
 for (n in c(7,20)){
-  png(file=paste(".\\viol_lim\\together_non_iden",n,".png",sep=""),width=1200,height=600)
-  par(mfrow=c(1,3))
-  for (i in 1:3){
+  png(file=paste(".\\viol_lim\\together_non_iden",n,".png",sep=""),width=1200,height=800)
+  par(mfrow=c(2,2))
+  for (i in 1:4){
     rho <- replicate(k, scorr(dists[[i]](n)))
     hist(rho,xlim = c(-1,1),main = names[i],xlab="S. Correlation (rho)",cex.lab=1.5,cex.main=2)
   }
@@ -67,7 +101,7 @@ for (n in c(7,20)){
   dev.off()
 }
 
-# Non-independent Samples
+# Non-independent Samples: Power Computation
 
 non_ind = function(n){
   x <- rnorm(n)
@@ -78,11 +112,12 @@ non_ind = function(n){
   cbind(x,y)
 }
 
-rho = replicate(k, scorr(non_ind(n)))
+rho = replicate(k, scorr(non_ind.1(n)))
 power = mean(rho > cut_off(n, 0.95))
 power
 
 # Only Monotonic Association can be captured
+
 n <- 7
 
 # eg 1.1
