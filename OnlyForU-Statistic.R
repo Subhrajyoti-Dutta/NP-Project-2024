@@ -418,26 +418,3 @@ title(main = "AMH (Uniform Marginals)", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
 legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
-#
-# powers <- parSapply(cl,nvals, function(n) {
-#   U.stat.power(n, 0.05, "upper", rnorm2d, 0.5)
-# })
-#
-# print(powers)
-#
-# plot(nvals,powers)
-#Right Tailed
-#bivariate normal
-#mckay bivariate gamma
-#bivariate t
-
-#Left Tailed Alternative
-#bivariate normal
-#custom exponential
-#bivariate t
-
-
-#Two-Sided Alternative
-#bivariate normal
-#bivariate t
-#bivariate logistic
