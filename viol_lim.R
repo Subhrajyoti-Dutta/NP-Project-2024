@@ -1,4 +1,5 @@
 library("fMultivar")
+library("VGAM")
 
 #set.seed(423)
 
@@ -30,6 +31,7 @@ k = 10000
 dists = c(Normal, Binom, Geom, Pois)
 names = c("BVN", "BVB", "BVG", "BVP")
 
+if(!dir.exists(".\\viol_lim")) dir.create(".\\viol_lim")
 for (n in c(7,20)){
   png(file=paste(".\\viol_lim\\together_discrete",n,".png",sep=""),width=1200,height=800)
   par(mfrow=c(2,2))
@@ -105,6 +107,7 @@ for (n in c(7,20)){
 
 non_ind = function(n){
   x <- rnorm(n)
+  y <- x
   y[1] <- c(runif(1))
   for(i in 2:n){
     y[i] <- i*y[1] + x[i]
@@ -112,9 +115,24 @@ non_ind = function(n){
   cbind(x,y)
 }
 
-rho = replicate(k, scorr(non_ind.1(n)))
+cut_off <- function(n, prob) {
+  k <- 10000
+  if(n <= 10) {
+    rho <- replicate(k, scorr(rbinorm(n)))
+    cp <- quantile(rho, prob)
+  } else {
+    cp <- qnorm(prob, sd = 1/sqrt(n-1))
+  }
+  names(cp) <- NULL
+  return(cp)
+}
+n = 16
+rho = replicate(k, scorr(non_ind(n)))
 power = mean(rho > cut_off(n, 0.95))
-power
+print(power)
+png(file=paste(".\\viol_lim\\violofind.png",sep=""),width=480,height=480)
+hist(rho,main="Violation oF Independence",cex.lab=1.5,cex.main=2)
+dev.off()
 
 # Only Monotonic Association can be captured
 
@@ -175,3 +193,4 @@ for (i in 1:4) {
   
   print(paste("Power of this test is ", power))
 }
+

@@ -8,9 +8,11 @@ gen_dist_and_scorr = function(n){
 
 set.seed(42)
 
-nvals = c(2:10,seq(12,20,2),seq(30,100,10))
+nvals = c(2:10,seq(12,20,2),seq(30,50,10))
 k = 10000
 i = 1
+
+if(!dir.exists(".\\var_with_n")) dir.create(".\\var_with_n")
 for (n in nvals){
   rho <- replicate(k, sqrt(n-1) * gen_dist_and_scorr(n))
   png(file = paste(".\\var_with_n\\img",i,".png",sep=""), width = 960, height = 480)

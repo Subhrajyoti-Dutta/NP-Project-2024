@@ -1,4 +1,5 @@
 library("fMultivar")
+library("VGAM")
 
 scorr = function(arr) {
   cor(arr[,1], arr[,2], method = 'spearman')
@@ -36,6 +37,7 @@ k = 10000
 dists = c(Normal, Tdist, Gamma, Exponential, AMH, ChiSqr)
 names = c("BVN", "BVT", "BVG", "BVE", "AMH", "BVCS")
 
+if(!dir.exists(".\\dist_free")) dir.create(".\\dist_free")
 for (n in c(7,20)){
   png(file=paste(".\\dist_free\\together",n,".png",sep=""),width=1200,height=800)
   par(mfrow=c(2,3))

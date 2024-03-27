@@ -1,1 +1,0 @@
-ffmpeg -r 0.5 -i "img%%01d.png" -vcodec mpeg4 -y movie.mp4

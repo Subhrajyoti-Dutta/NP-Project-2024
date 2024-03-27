@@ -71,15 +71,16 @@ genCusExpo = function(n, rho){
   cbind(z1,exp(z2-z1))
 }
 
+
 genCusExpoL = function(n, l){
-  mu = 5
+  mu = 2
   z1 = rexp(n,l)
   z2 = rexp(n,mu)
   cbind(z1,exp(z2-z1))
 }
 
 genCusExpoM = function(n, mu){
-  l = 5
+  l = 2
   z1 = rexp(n,l)
   z2 = rexp(n,mu)
   cbind(z1,exp(z2-z1))
@@ -129,9 +130,9 @@ power <- function(n, alpha, alt, func, delta) {
 n <- 15
 alpha <- 0.05
 
-delta_upper = seq(0.025,0.5,0.025)
-delta_lower = seq(-0.5,-0.025,0.025)
-delta_both = seq(-0.5,0.5,0.05)
+delta_upper = seq(0.025,0.5,0.0125)
+delta_lower = seq(-0.5,-0.025,0.0125)
+delta_both = seq(-0.5,0.5,0.025)
 nvals = 10:30
 
 # Export necessary objects and functions to the workers
@@ -158,6 +159,12 @@ cex_main = 2
 main_line = 2.2
 sub_line = -25.5
 lwd = 1
+pos = "bottomright"
+names = c("U-Statistic","Spearman's rho")
+coll = c("blue","red")
+
+if(!dir.exists(".\\Ustatpower")) dir.create(".\\Ustatpower")
+
 
 #========================================================================================================================
 #                                                          vary n
@@ -175,6 +182,7 @@ plot(nvals, powersU, xlab = "n values", ylab = "Power", lwd=lwd,ylim=c(minm,maxm
 lines(nvals, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Upper-Tailed", line=main_line, cex.main=cex_main)
 title(sub = paste("BVN (rho = ",0.3,")", sep=""), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 #========================================================================================================================
 
@@ -189,6 +197,7 @@ plot(nvals, powersU, xlab = "n values", ylab = "Power", lwd=lwd, ylim=c(minm,max
 lines(nvals, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Lower-Tailed", line=main_line, cex.main=cex_main)
 title(sub = paste("BVT (rho = ",-0.3,")",sep=""), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -204,6 +213,7 @@ plot(nvals, powersU, xlab = "n values", ylab = "Power", lwd=lwd, ylim=c(minm,max
 lines(nvals, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Two-Tailed", line=main_line, cex.main=cex_main)
 title(sub = paste("AMH (asso = ",0.7,")",sep=""), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 # at asso = 0.7, scorr = 0.28 and pcorr = 0.29
@@ -215,7 +225,7 @@ dev.off()
 #1. BVN
 
 # Run parSapply in parallel
-powersU = parSapply(cl,delta_upper, function(delta) {U.stat.superpower(n, alpha, "upper", rnorm2d, delta)})
+powersU = parSapply(cl, delta_upper, function(delta) {U.stat.superpower(n, alpha, "upper", rnorm2d, delta)})
 powers <- parSapply(cl, delta_upper, function(delta) power(n, alpha, "upper", rnorm2d, delta))
 maxm = max(powersU,powers)
 minm = min(powersU,powers)
@@ -225,6 +235,7 @@ plot(delta_upper, powersU, xlab = "Association Parameter", ylab = "Power", lwd=l
 lines(delta_upper, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -232,31 +243,37 @@ dev.off()
 #2a. BVG
 
 # Run parSapply in parallel
-powersU = parSapply(cl,20:50, function(delta) {U.stat.superpower(n, alpha, "upper", genGammaN, delta)})
-powers <- parSapply(cl, 20:50, function(delta) power(n, alpha, "upper", genGammaN, delta))
+N = seq(10,200,10)
+powersU = parSapply(cl, N, function(delta) {U.stat.superpower(n, alpha, "upper", genGammaN, delta)})
+powers <- parSapply(cl, N, function(delta) power(n, alpha, "upper", genGammaN, delta))
 maxm = max(powersU,powers)
 minm = min(powersU,powers)
 
+rho = function(m,n) {sqrt(m/(m+n))}
+
 png(file = ".\\Ustatpower\\Gamma1_Upper.png", width = width_img, height = height_img)
-plot(20:50, powersU, xlab = "Parameter N", ylab = "Power", lwd=lwd, ylim=c(minm,maxm),type = type, col = color, cex.lab=cex_lab)
-lines(20:50, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
+plot(rho(2,N), powersU, xlab = "Association Parameter rho(N)", ylab = "Power", lwd=lwd, ylim=c(minm,maxm),type = type, col = color, cex.lab=cex_lab)
+lines(rho(2,N), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Gamma", line=main_line, cex.main=cex_main)
-title(sub = paste("n = ",n,", M = 5",sep=''), line = sub_line, cex.sub=cex_sub)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #2b. BVG
 
 # Run parSapply in parallel
-powersU <- parSapply(cl,seq(0.2,4,0.2), function(delta) {U.stat.superpower(n, alpha, "upper", genGammaM, delta)})
-powers <- parSapply(cl, seq(0.2,4,0.2), function(delta) power(n, alpha, "upper", genGammaM, delta))
+M=seq(0.01,1,0.02)
+powersU <- parSapply(cl,M, function(delta) {U.stat.superpower(n, alpha, "upper", genGammaM, delta)})
+powers <- parSapply(cl, M, function(delta) power(n, alpha, "upper", genGammaM, delta))
 maxm = max(powersU,powers)
 minm = min(powersU,powers)
 
 png(file = ".\\Ustatpower\\Gamma2_Upper.png", width = width_img, height = height_img)
-plot(seq(0.2,4,0.2), powersU, xlab = "Parameter M", ylab = "Power", ylim=c(minm,maxm), lwd=lwd, type = type, col = color, cex.lab=cex_lab)
-lines(seq(0.2,4,0.2), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
+plot(rho(M,2), powersU, xlab = "Association Parameter rho(α)", ylab = "Power", ylim=c(minm,maxm), lwd=lwd, type = type, col = color, cex.lab=cex_lab)
+lines(rho(M,2), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Gamma", line=main_line, cex.main=cex_main)
-title(sub = paste("n = ",n,", N = 5",sep=""), line = sub_line, cex.sub=cex_sub)
+title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -276,6 +293,7 @@ plot(delta_upper, powersU, xlab = "Association Parameter", ylab = "Power",ylim=c
 lines(delta_upper, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate T", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -294,6 +312,7 @@ plot(delta_lower, powersU, xlab = "Association Parameter", ylab = "Power", lwd=l
 lines(delta_lower, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -310,35 +329,43 @@ plot(delta_lower, powersU, xlab = "Association Parameter", ylab = "Power", lwd=l
 lines(delta_lower, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate T", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
 
 #3. CBVE
 
-powersU <- parSapply(cl,seq(2.5,10,0.5), function(delta) {U.stat.superpower(n, alpha, "lower", genCusExpoL, delta)})
-powers <- parSapply(cl, seq(2.5,10,0.5), function(delta) power(n, alpha, "lower", genCusExpoL, delta))
+powersU <- parSapply(cl,seq(9,50,1), function(delta) {U.stat.superpower(n, alpha, "lower", genCusExpoL, delta)})
+powers <- parSapply(cl, seq(9,50,1), function(delta) power(n, alpha, "lower", genCusExpoL, delta))
 maxm = max(powersU,powers)
 minm = min(powersU,powers)
 
+rho = function(l,m) {
+  -sqrt(l*(l+1))/(l+1) * sqrt((m*(m+2))/((l+1)^2 + m*(m-2)))
+}
+
 png(file = ".\\Ustatpower\\BVLD_Lower1.png", width = width_img, height = height_img)
-plot(seq(2.5,10,0.5), powersU, xlab = "Parameter Lambda", ylab = "Power", lwd=lwd,ylim=c(minm,maxm), type = type, col = color, cex.lab=cex_lab)
-lines(seq(2.5,10,0.5), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
+plot(rho(seq(9,50,1),5), powersU, xlab = "Association Parameter rho(Lambda)", ylab = "Power", lwd=lwd,ylim=c(minm,maxm), type = type, col = color, cex.lab=cex_lab)
+lines(rho(seq(9,50,1),5), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Prop. Bivar Life Dist", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n,", mu = 5"), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
 
-powersU <- parSapply(cl,seq(0.5,10,0.5), function(delta) {U.stat.superpower(n, alpha, "lower", genCusExpoM, delta)})
-powers <- parSapply(cl, seq(0.5,10,0.5), function(delta) power(n, alpha, "lower", genCusExpoM, delta))
+powersU <- parSapply(cl,seq(0.01,5,0.1), function(delta) {U.stat.superpower(n, alpha, "lower", genCusExpoM, delta)})
+powers <- parSapply(cl, seq(0.01,5,0.1), function(delta) power(n, alpha, "lower", genCusExpoM, delta))
 maxm = max(powersU,powers)
 minm = min(powersU,powers)
 
 png(file = ".\\Ustatpower\\BVLD_Lower2.png", width = width_img, height = height_img)
-plot(seq(0.5,10,0.5), powersU, xlab = "Parameter Mu", ylab = "Power", lwd=lwd,ylim=c(minm,maxm), type = type, col = color, cex.lab=cex_lab)
-lines(seq(0.5,10,0.5), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
+plot(rho(5,seq(0.01,5,0.1)), powersU, xlab = "Association Parameter rho(Mu)", ylab = "Power", lwd=lwd,ylim=c(minm,maxm), type = type, col = color, cex.lab=cex_lab)
+lines(rho(5,seq(0.01,5,0.1)), powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Prop. Bivar Life Dist", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n,", lambda = 5",sep=''), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,"topright", legend=names, fill=coll)
 dev.off()
+
 
 #========================================================================================================================
 #                                                          rho != 0
@@ -356,6 +383,7 @@ plot(delta_both, powersU, xlab = "Association Parameter", ylab = "Power", lwd=lw
 lines(delta_both, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "Bivariate Normal", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -370,8 +398,9 @@ minm = min(powersU,powers)
 png(file = ".\\Ustatpower\\T_Both.png", width = width_img, height = height_img)
 plot(delta_both, powersU, xlab = "Association Parameter", ylab = "Power", lwd=lwd,ylim=c(minm,maxm), type = type, col = color, cex.lab=cex_lab)
 lines(delta_both, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
-title(main = "Bivariate Student T", line=main_line, cex.main=cex_main)
+title(main = "Bivariate T", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
 
 #========================================================================================================================
@@ -389,27 +418,5 @@ plot(alpha_both, powersU, xlab = "Association Parameter", ylab = "Power", lwd=lw
 lines(alpha_both, powers, lwd=lwd, type = type, col = color2, cex.lab=cex_lab)
 title(main = "AMH (Uniform Marginals)", line=main_line, cex.main=cex_main)
 title(sub = paste("n =",n), line = sub_line, cex.sub=cex_sub)
+legend(cex=1,pos, legend=names, fill=coll)
 dev.off()
-#
-# powers <- parSapply(cl,nvals, function(n) {
-#   U.stat.power(n, 0.05, "upper", rnorm2d, 0.5)
-# })
-#
-# print(powers)
-#
-# plot(nvals,powers)
-#Right Tailed
-#bivariate normal
-#mckay bivariate gamma
-#bivariate t
-
-#Left Tailed Alternative
-#bivariate normal
-#custom exponential
-#bivariate t
-
-
-#Two-Sided Alternative
-#bivariate normal
-#bivariate t
-#bivariate logistic
