@@ -73,6 +73,7 @@ power <- function(n, alpha, alt, func, delta) {
 
 
 
+
 # Define power credentials
 n <- 20
 alpha <- 0.05
